@@ -1,6 +1,6 @@
 - i1
 ls -l
-ps
+grep r
 - s3
 tty
 - s2

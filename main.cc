@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
@@ -71,9 +72,20 @@ struct Process {
 		if(pid != 0) {
 			log(" [Info ] Created process for pid: ", pid, " for file ", path);
 			for(int i=0;i<siblings.size();i++) {
+				// forking process to unblock parent forker.
+				int pid2 = fork();
+				if(pid2 != 0)continue;
 				siblings[i]->execute();
-			}	
+				break;
+			}
 			waitpid(pid, NULL, 0);
+			// send EOF to stdout of new process to unblock downstream process
+			if(stdout != -1) {
+				int temp = dup(STDOUT_FILENO);
+				dup2(stdout, STDOUT_FILENO);
+				std::cout.eof();
+				dup2(temp, STDOUT_FILENO);
+			}
 			for(int i=0;i<child_procs.size();i++) {
 				child_procs[i]->execute();
 			}
@@ -90,7 +102,7 @@ struct Process {
 				for(int i=0;i<num_args;i++) {
 					log(args[i]);
 				}
-			}	
+			}
 			exit(0);
 		}
 		return 0;
