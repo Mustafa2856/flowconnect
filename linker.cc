@@ -35,11 +35,13 @@ void link_proc_tree(Process* head, InputConfig* conf, std::string node) {
 				log(" [Error] Error occured creating pipe");
 			}
 		}
+		int max_fd = headNode->paths.size() * 2 + 2;
 		head->args = headNode->args.front();
 		head->path = headNode->paths.front();
 		head->num_args = headNode->num_args.front();
 		head->stdin = pipes[headNode->paths.size() - 1][0];
 		head->stdout = pipes[0][1];
+		head->max_fd = max_fd;
 		Process* prev = head;
 		for(int i=1;i<headNode->paths.size();i++) {
 			Process *p = new Process();
@@ -48,6 +50,7 @@ void link_proc_tree(Process* head, InputConfig* conf, std::string node) {
 			p->num_args = headNode->num_args[i];
 			p->stdin = pipes[i-1][0];
 			p->stdout = pipes[i][1];
+			p->max_fd = max_fd;
 			prev->siblings.push_back(p);
 			prev = p;
 		}
@@ -58,10 +61,12 @@ void link_proc_tree(Process* head, InputConfig* conf, std::string node) {
 				log(" [Error] Error occured creating pipe");
 			}
 		}
+		int max_fd = headNode->paths.size() * 2 + 2;
 		head->args = headNode->args.front();
 		head->path = headNode->paths.front();
 		head->num_args = headNode->num_args.front();
 		head->stdout = pipes[0][1];
+		head->max_fd = max_fd;
 		Process* prev = head;
 		for(int i=1;i<headNode->paths.size();i++) {
 			Process *p = new Process();
@@ -72,6 +77,7 @@ void link_proc_tree(Process* head, InputConfig* conf, std::string node) {
 			if(i != headNode->paths.size() -1) {
 				p->stdout = pipes[i][1];
 			}
+			p->max_fd = max_fd;
 			prev->siblings.push_back(p);
 			prev = p;
 		}

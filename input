@@ -1,6 +1,7 @@
 - i1
-ls -l
+ls -l /proc/self/fd
 grep r
+grep us
 - s3
 tty
 - s2
