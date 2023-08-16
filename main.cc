@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <ostream>
 #include <string>
 #include <string.h>
@@ -168,8 +169,20 @@ struct InputConfig {
 			verbose = true;
 		}
 		if (flagList[FLAGS::f]) {
-			// TODO
-			std::istream in(0);
+			std::string path = "";
+			for (int i=0;i<num_input;i++) {
+				if(strnlen(input[i],2) && input[i][0] == '-' && input[i][1] == flags[FLAGS::f]) {
+					if (i < num_input - 1) {
+						path = input[i+1];
+					}
+					break;
+				}
+			}
+			if(path == "") {
+				log("No input file specified after -f flag exiting");
+				exit(1);
+			}
+			std::ifstream in(path);
 			file_input = (char*)malloc(MAX_FILE_SIZE);
 			read_from_istream(in);
 		} else if (flagList[FLAGS::i]) {
