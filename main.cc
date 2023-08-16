@@ -1,15 +1,3 @@
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <ostream>
-#include <string>
-#include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <vector>
-#include <map>
-
 #include "log.cc"
 #include "process.cc"
 #include "input_handler.cc"
