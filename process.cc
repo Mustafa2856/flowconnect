@@ -11,35 +11,31 @@
 #define PROCESS_INCLUDED
 
 struct Process {
-	enum Mode {SINGLE, GROUP, LOOP, LINEAR};
 	// FDs of std streams
-	int stdin;
-	int stdout;
-	int stderr;
-	int max_fd;
+	int stdin = -1;
+	int stdout = -1;
+	int stderr = -1;
+	int max_fd = 2;
 
-	char* path;
-	char** args;
-	int num_args;
+	char* path = NULL;
+	char** args = NULL;
 
-	Mode mode;
-	std::vector<Process*> siblings;
-	std::vector<Process*> child_procs;
+  Process();
+  int execute();
+  void execute_and_exit();
+};
 
-	Process() {
-		max_fd = 2;
-		stdin = -1;
-		stdout = -1;
-		stderr = -1;	
-		path = NULL;
-		num_args = 0;
-		args = NULL;
-		mode = Mode::SINGLE;
-		siblings = std::vector<Process*>();
-		child_procs = std::vector<Process*>();
-	}
+Process::Process() {
+  stdin = -1;
+  stdout = -1;
+  stderr = -1;
+  max_fd = 2;
 
-	int execute() {
+  path = NULL;
+  args = NULL;
+}
+
+int Process::execute() {
 		if (path == NULL) {
 			log(" [Error] No Path found for executable\n");
 			exit(1);
@@ -47,21 +43,10 @@ struct Process {
 		int pid = fork();
 		if(pid != 0) {
 			log(" [Info ] Created process for pid: ", pid, " for file ", path);
-			for(int i=0;i<siblings.size();i++) {
-				// forking process to unblock parent forker.
-				int pid2 = fork();
-				if(pid2 != 0)continue;
-				siblings[i]->execute();
-				exit(0);
-			}
 			for(int i=3;i<=max_fd;i++) {
 				close(i);
 			}
-			waitpid(pid, NULL, 0);
-			// send EOF to stdout of new process to unblock downstream process
-			for(int i=0;i<child_procs.size();i++) {
-				child_procs[i]->execute();
-			}
+		  while(waitpid(-1, NULL, 0)>=0);	
 			return 0;
 		} else {
 			for(int i=3;i<=max_fd;i++) {
@@ -75,14 +60,19 @@ struct Process {
 			if (status == -1) {
 				log(" [Error] execvp returned -1 while trying to create process::");
 				log(" [Error] Path: ", path);
-				log(" [Error] Args: ", num_args);
-				for(int i=0;i<num_args;i++) {
-					log(args[i]);
+				log(" [Error] Args: ");
+				for(int i=0;true;i++) {
+          if(args[i] == NULL)break;
+					log(" [Error] ", args[i]);
 				}
 			}
 			exit(0);
 		}
 		return 0;
 	}
-};
+
+void Process::execute_and_exit() {
+  execute();
+  exit(0);
+}
 

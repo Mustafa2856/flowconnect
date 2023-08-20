@@ -1,11 +1,13 @@
-- i1
+- i n1
 ls -l /proc/self/fd
 grep r
-grep us
-- s3
-tty
-- s2
 ps
-= i1
-= i1 s2
-= i1 s3
+- i n2
+ls -l
+grep r
+ps
+- s n3
+cat main.cc
+= n1
+= n1 n3
+= n1 n2

@@ -1,5 +1,4 @@
 #include "log.cc"
-#include "process.cc"
 #include "input_handler.cc"
 #include "linker.cc"
 
@@ -11,10 +10,8 @@ int main(int argc, char* argv[]) {
 	log();
 	// get control logic
 	InputConfig config(argc, argv);
-	// create process graph
-	Process *head = new Process();
 	// link proc tree into head
-	link_proc_tree(head, &config, "");
+	Node* head = link_proc_tree(&config, "");
 	head->execute();
 	return 0;
 }
